@@ -1,0 +1,9 @@
+{
+    "domain": "mars_weather",
+    "name": "Mars Weather",
+    "documentation": "",
+    "issue_tracker": "https://github.com/AlbertWigmore/ha-mars-weather/issues",
+    "dependancies": [],
+    "codeowners": ["@albertwigmore"],
+    "requirements": ["requests"]
+}
