@@ -37,16 +37,6 @@ class InsightSensor(Entity):
         self._client = client
         self._state = None
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return DEFAULT_NAME
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
     def update(self):
         """Fetch new state data for the sensor.
         This is the only method that should fetch new data for Home Assistant.
@@ -67,6 +57,16 @@ class InsightSensor(Entity):
     def device_state_attributes(self):
         """Return attributes for the sensor."""
         return self._attributes
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return DEFAULT_NAME
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._state
 
 
 class InsightClient():
