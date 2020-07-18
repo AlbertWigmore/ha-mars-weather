@@ -2,27 +2,39 @@
 from datetime import timedelta
 
 import requests
+import voluptuous as vol
 
-from homeassistant.const import ATTR_ATTRIBUTION
+import homeassistant.helpers.config_validation as cv
+from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.const import ATTR_ATTRIBUTION, CONF_API_KEY
 from homeassistant.helpers.entity import Entity
 
 ATTRIBUTION = "Data provided by NASA API"
 DEFAULT_NAME = "Mars Weather"
 SCAN_INTERVAL = timedelta(hours=1)
-API_KEY = "key"
+
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Required(CONF_API_KEY): cv.string,
+    }
+)
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
-    add_entities([InsightSensor()])
+
+    client = InsightClient(config.get(CONF_API_KEY))
+
+    add_entities([InsightSensor(client)])
 
 
 class InsightSensor(Entity):
     """ Mars Insight Sensor. """
 
-    def __init__(self):
+    def __init__(self, client):
         """Initialize the sensor."""
         self._attributes = {}
+        self._client = client
         self._state = None
 
     @property
@@ -39,7 +51,7 @@ class InsightSensor(Entity):
         """Fetch new state data for the sensor.
         This is the only method that should fetch new data for Home Assistant.
         """
-        sol, data = nasa_insight()
+        sol, data = self._client.get_weather()
 
         self._state = sol
         self._attributes['first_utc'] = data[sol]['First_UTC']
@@ -57,12 +69,20 @@ class InsightSensor(Entity):
         return self._attributes
 
 
-def nasa_insight():
-    r = requests.get(f"https://api.nasa.gov/insight_weather/?api_key={API_KEY}&feedtype=json&ver=1.0")
-    #TODO - check valid response
-    #TODO - check available data
+class InsightClient():
+    """ Insight API Client """
 
-    data = r.json()
-    most_recent_sol = max(data['sol_keys'])
+    def __init__(self, api_key):
+        """ Initialise """
+        self.api_key = api_key
 
-    return(most_recent_sol, data)
+    def get_weather(self):
+        """ Get Weather Data """
+        r = requests.get(f"https://api.nasa.gov/insight_weather/?api_key={self.api_key}&feedtype=json&ver=1.0")
+        #TODO - check valid response
+        #TODO - check available data
+
+        data = r.json()
+        most_recent_sol = max(data['sol_keys'])
+
+        return(most_recent_sol, data)
