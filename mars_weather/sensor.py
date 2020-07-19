@@ -9,8 +9,9 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import ATTR_ATTRIBUTION, CONF_API_KEY
 from homeassistant.helpers.entity import Entity
 
-ATTRIBUTION = "Data provided by NASA API"
-DEFAULT_NAME = "Mars Weather"
+ATTRIBUTION = 'Data provided by NASA API'
+DEFAULT_NAME = 'Mars Weather'
+ICON = 'mdi:satellite-uplink'
 SCAN_INTERVAL = timedelta(hours=1)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -59,6 +60,11 @@ class InsightSensor(Entity):
         return self._attributes
 
     @property
+    def icon(self):
+        """ Return icon to use in the frontend """
+        return ICON
+
+    @property
     def name(self):
         """Return the name of the sensor."""
         return DEFAULT_NAME
@@ -78,7 +84,7 @@ class InsightClient():
 
     def get_weather(self):
         """ Get Weather Data """
-        r = requests.get(f"https://api.nasa.gov/insight_weather/?api_key={self.api_key}&feedtype=json&ver=1.0")
+        r = requests.get(f'https://api.nasa.gov/insight_weather/?api_key={self.api_key}&feedtype=json&ver=1.0')
         #TODO - check valid response
         #TODO - check available data
 
