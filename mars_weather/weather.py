@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import requests
 import voluptuous as vol
+from mars_insight.api import Client
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.weather import (
@@ -37,7 +38,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
 
-    client = InsightClient(config.get(CONF_API_KEY))
+    client = Client(config.get(CONF_API_KEY))
 
     add_entities([InsightWeather(client)])
 
@@ -104,7 +105,8 @@ class InsightWeather(WeatherEntity):
 
     def update(self):
         """ Get the latest data from Mars InSight. """
-        sol, data = self._client.get_weather()
+        data = self._client.get_data()
+        sol = max(data['sol_keys'])
 
         self._sol = sol
         self._temperature = data[sol]['AT']['av']
@@ -112,21 +114,3 @@ class InsightWeather(WeatherEntity):
         self._wind_speed = data[sol]['HWS']['av']
         self._wind_direction = data[sol]['WD']['most_common']['compass_degrees']
 
-
-class InsightClient():
-    """ Insight API Client """
-
-    def __init__(self, api_key):
-        """ Initialise """
-        self.api_key = api_key
-
-    def get_weather(self):
-        """ Get Weather Data """
-        r = requests.get(f'https://api.nasa.gov/insight_weather/?api_key={self.api_key}&feedtype=json&ver=1.0')
-        #TODO - check valid response
-        #TODO - check available data
-
-        data = r.json()
-        most_recent_sol = max(data['sol_keys'])
-
-        return(most_recent_sol, data)

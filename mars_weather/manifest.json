@@ -5,5 +5,5 @@
     "issue_tracker": "https://github.com/AlbertWigmore/ha-mars-weather/issues",
     "dependancies": [],
     "codeowners": ["@albertwigmore"],
-    "requirements": ["requests"]
+    "requirements": ["requests", "mars-insight"]
 }
