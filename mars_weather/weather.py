@@ -50,15 +50,22 @@ class InsightWeather(WeatherEntity):
         self._client = client
         self._data = None
 
-        self._temperature
-        self._pressure
-        self._wind_speed
-        self._wind_bearing
+        self._sol = None
+        self._temperature = None
+        self._pressure = None
+        self._wind_speed = None
+        self._wind_bearing = None
+        self.update()
 
     @property
     def name(self):
         """ Return name of Weather sensor. """
         return "Mars Weather"
+
+    @property
+    def condition(self):
+        """ Return the current condition """
+        return f'Sol {self._sol}'
 
     @property
     def temperature(self):
@@ -74,6 +81,11 @@ class InsightWeather(WeatherEntity):
     def pressure(self):
         """ Return the pressure. """
         return self._pressure
+
+    @property
+    def humidity(self):
+        """ Return the Humidity. """
+        return None
 
     @property
     def wind_speed(self):
@@ -94,6 +106,7 @@ class InsightWeather(WeatherEntity):
         """ Get the latest data from Mars InSight. """
         sol, data = self._client.get_weather()
 
+        self._sol = sol
         self._temperature = data[sol]['AT']['av']
         self._pressure = data[sol]['PRE']['av']
         self._wind_speed = data[sol]['HWS']['av']
